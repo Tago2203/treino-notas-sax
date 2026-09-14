@@ -298,8 +298,7 @@ function tick(now) {
   state.lastFrame = now;
   state.lastSpawn += dt;
 
-  const maxOnScreen = 3;
-  if (state.lastSpawn >= state.settings.spawnInterval && state.notes.length < maxOnScreen) {
+  if (state.lastSpawn >= state.settings.spawnInterval) {
     spawnScrollNote();
     state.lastSpawn = 0;
   }

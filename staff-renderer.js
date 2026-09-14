@@ -17,8 +17,8 @@ export function drawStaff(ctx, showJudgeLine = true) {
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
   // 5 linhas da pauta (steps 0,2,4,6,8)
-  ctx.strokeStyle = '#333';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1.1;
   for (let s = 0; s <= 8; s += 2) {
     const y = stepToY(s);
     ctx.beginPath();

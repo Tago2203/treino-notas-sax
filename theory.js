@@ -32,14 +32,15 @@ export function noteLabel(letter, accidental = 0) {
 }
 
 // Cores vibrantes fixas por nota (estilo Boomwhackers), usadas nos botões de resposta.
+// Texto sempre preto e negrito (aplicado no CSS), só o fundo muda por nota.
 export const NOTE_COLORS = {
-  C: { bg: '#e63946', fg: '#ffffff' },
-  D: { bg: '#f3722c', fg: '#ffffff' },
-  E: { bg: '#f9c74f', fg: '#3d2b00' },
-  F: { bg: '#43aa8b', fg: '#ffffff' },
-  G: { bg: '#277da1', fg: '#ffffff' },
-  A: { bg: '#5e60ce', fg: '#ffffff' },
-  B: { bg: '#d63384', fg: '#ffffff' },
+  C: { bg: '#e63946', fg: '#000000' },
+  D: { bg: '#f3722c', fg: '#000000' },
+  E: { bg: '#f9c74f', fg: '#000000' },
+  F: { bg: '#43aa8b', fg: '#000000' },
+  G: { bg: '#277da1', fg: '#000000' },
+  A: { bg: '#5e60ce', fg: '#000000' },
+  B: { bg: '#d63384', fg: '#000000' },
 };
 
 export const DURATION_OPTIONS = [
