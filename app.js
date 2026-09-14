@@ -365,8 +365,16 @@ function answer(note, correct) {
   }
 }
 
+function tryLockLandscape() {
+  const orientation = screen.orientation;
+  if (orientation && orientation.lock) {
+    orientation.lock('landscape').catch(() => {});
+  }
+}
+
 function startGame(level, settings) {
   initAudio();
+  tryLockLandscape();
   state = {
     level,
     settings,

@@ -85,6 +85,10 @@ h1 {
 .hud-stat { font-size: 14px; color: #6b6255; }
 .hud-stat b { color: var(--ink); font-size: 16px; }
 
+#staff-wrap {
+  width: 100%;
+}
+
 #staff {
   width: 100%;
   height: auto;
@@ -219,4 +223,91 @@ h1 {
 .start-btn:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+/* --- Aviso de girar o celular --- */
+
+#rotate-prompt {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+#rotate-prompt p {
+  font-size: 18px;
+  font-weight: 600;
+  max-width: 280px;
+}
+
+.rotate-icon {
+  font-size: 56px;
+  animation: rotate-hint 1.6s ease-in-out infinite;
+}
+
+@keyframes rotate-hint {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  #rotate-prompt { display: flex; }
+  #screen-menu, #screen-settings, #screen-game { display: none !important; }
+}
+
+/* --- Jogo em tela cheia, sem rolagem, no celular deitado --- */
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #screen-game {
+    max-width: none;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 6px 12px;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  #screen-game .hud {
+    flex: 0 0 auto;
+    margin-bottom: 0;
+    gap: 10px;
+  }
+
+  #screen-game .hud-stat,
+  #level-name {
+    font-size: 13px;
+  }
+
+  #staff-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #staff {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+  }
+
+  #options {
+    flex: 0 0 auto;
+    margin-top: 0;
+    max-width: none;
+  }
+
+  .option-btn {
+    aspect-ratio: unset;
+    height: 42px;
+  }
 }
