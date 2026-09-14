@@ -289,6 +289,9 @@ h1 {
   #staff-wrap {
     flex: 1 1 auto;
     min-height: 0;
+    width: 100%;
+    max-width: 68%;
+    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -308,6 +311,8 @@ h1 {
 
   .option-btn {
     aspect-ratio: unset;
-    height: 42px;
+    height: 88px;
+    font-size: 22px;
+    border-radius: 16px;
   }
 }
