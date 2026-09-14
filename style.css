@@ -168,6 +168,17 @@ h1 {
 
 .chip input { accent-color: var(--accent); }
 
+.chip.selectable {
+  border-width: 2px;
+  font-weight: 600;
+}
+
+.chip.selectable.selected {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  color: white;
+}
+
 .note-chip {
   min-width: 52px;
   min-height: 52px;

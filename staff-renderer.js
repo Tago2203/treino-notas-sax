@@ -12,7 +12,7 @@ function stepToY(step) {
   return BASE_Y - step * STEP_PX;
 }
 
-export function drawStaff(ctx) {
+export function drawStaff(ctx, showJudgeLine = true) {
   ctx.fillStyle = '#fffdf7';
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
@@ -33,16 +33,17 @@ export function drawStaff(ctx) {
   ctx.textBaseline = 'alphabetic';
   ctx.fillText('𝄞', 30, stepToY(2) + 26);
 
-  // linha de julgamento
-  ctx.save();
-  ctx.strokeStyle = '#e07a3f';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([6, 5]);
-  ctx.beginPath();
-  ctx.moveTo(JUDGE_X, stepToY(10));
-  ctx.lineTo(JUDGE_X, stepToY(-4));
-  ctx.stroke();
-  ctx.restore();
+  if (showJudgeLine) {
+    ctx.save();
+    ctx.strokeStyle = '#e07a3f';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath();
+    ctx.moveTo(JUDGE_X, stepToY(10));
+    ctx.lineTo(JUDGE_X, stepToY(-4));
+    ctx.stroke();
+    ctx.restore();
+  }
 }
 
 function drawLedgerLines(ctx, x, step, color) {
@@ -149,9 +150,17 @@ export function drawNote(ctx, note) {
   }
 }
 
-export function render(ctx, notes) {
-  drawStaff(ctx);
+export function render(ctx, notes, showJudgeLine = true) {
+  drawStaff(ctx, showJudgeLine);
   for (const note of notes) {
     drawNote(ctx, note);
   }
+}
+
+export function layoutXPositions(count) {
+  const startX = STAFF_START_X + 90;
+  const endX = STAFF_END_X - 40;
+  if (count <= 1) return [(startX + endX) / 2];
+  const step = (endX - startX) / (count - 1);
+  return Array.from({ length: count }, (_, i) => startX + i * step);
 }

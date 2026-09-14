@@ -25,8 +25,18 @@
   </div>
 
   <div class="settings-block">
+    <p class="settings-label">Modo de jogo</p>
+    <div id="mode-toggles" class="chip-list"></div>
+  </div>
+
+  <div class="settings-block" id="speed-block">
     <label class="settings-label" for="speed-range">Velocidade: <b id="speed-value"></b> px/s</label>
     <input type="range" id="speed-range" min="25" max="220" step="5" />
+  </div>
+
+  <div class="settings-block" id="spacing-block">
+    <label class="settings-label" for="spacing-range">Espaçamento entre notas: <b id="spacing-value"></b> s</label>
+    <input type="range" id="spacing-range" min="0.6" max="4" step="0.1" />
   </div>
 
   <div class="settings-block">

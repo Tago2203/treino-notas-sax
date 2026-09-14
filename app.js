@@ -2,7 +2,6 @@ import { LEVELS, getLevel } from './levels.js';
 import {
   noteStep,
   noteToMidi,
-  noteLabel,
   LETTERS_ORDER,
   NOTE_NAMES_PT,
   NOTE_COLORS,
@@ -10,9 +9,15 @@ import {
   OCTAVE_OPTIONS,
 } from './theory.js';
 import { initAudio, playMidiNote } from './audio-engine.js';
-import { CANVAS_W, CANVAS_H, STAFF_START_X, render } from './staff-renderer.js';
+import { CANVAS_W, CANVAS_H, STAFF_START_X, render, layoutXPositions } from './staff-renderer.js';
 
 const STORAGE_PREFIX = 'treino-notas-sax:best:';
+
+const MODES = [
+  { id: 'scroll', label: '🎬 Notas passando', description: 'As notas se movem pela pauta' },
+  { id: 'fixed5', label: '5️⃣ Sequência de 5', description: '5 notas fixas, responda em ordem' },
+  { id: 'single', label: '🎯 Nota única', description: 'Uma nota por vez, sem pressa' },
+];
 
 const menuScreen = document.getElementById('screen-menu');
 const settingsScreen = document.getElementById('screen-settings');
@@ -20,8 +25,13 @@ const gameScreen = document.getElementById('screen-game');
 const levelListEl = document.getElementById('level-list');
 const settingsBackBtn = document.getElementById('settings-back-btn');
 const settingsLevelNameEl = document.getElementById('settings-level-name');
+const modeTogglesEl = document.getElementById('mode-toggles');
+const speedBlock = document.getElementById('speed-block');
 const speedRange = document.getElementById('speed-range');
 const speedValueEl = document.getElementById('speed-value');
+const spacingBlock = document.getElementById('spacing-block');
+const spacingRange = document.getElementById('spacing-range');
+const spacingValueEl = document.getElementById('spacing-value');
 const noteTogglesEl = document.getElementById('note-toggles');
 const octaveTogglesEl = document.getElementById('octave-toggles');
 const durationTogglesEl = document.getElementById('duration-toggles');
@@ -42,6 +52,7 @@ canvas.height = CANVAS_H;
 let state = null;
 let rafId = null;
 let draftLevel = null;
+let draftMode = 'scroll';
 
 function bestScore(levelId) {
   return Number(localStorage.getItem(STORAGE_PREFIX + levelId) || 0);
@@ -76,12 +87,37 @@ function buildMenu() {
 
 // --- Tela de configurações ---
 
+function updateModeDependentVisibility() {
+  const isScroll = draftMode === 'scroll';
+  speedBlock.hidden = !isScroll;
+  spacingBlock.hidden = !isScroll;
+}
+
 function openSettings(levelId) {
   draftLevel = getLevel(levelId);
+  draftMode = draftLevel.mode;
   settingsLevelNameEl.textContent = draftLevel.label;
+
+  modeTogglesEl.innerHTML = '';
+  for (const m of MODES) {
+    const label = document.createElement('label');
+    label.className = 'chip selectable' + (m.id === draftMode ? ' selected' : '');
+    label.title = m.description;
+    label.innerHTML = `<input type="radio" name="mode" value="${m.id}" ${m.id === draftMode ? 'checked' : ''} style="display:none" />${m.label}`;
+    label.querySelector('input').addEventListener('change', () => {
+      draftMode = m.id;
+      modeTogglesEl.querySelectorAll('.chip').forEach((c) => c.classList.remove('selected'));
+      label.classList.add('selected');
+      updateModeDependentVisibility();
+    });
+    modeTogglesEl.appendChild(label);
+  }
 
   speedRange.value = String(draftLevel.speed);
   speedValueEl.textContent = draftLevel.speed;
+  spacingRange.value = String(draftLevel.spawnInterval);
+  spacingValueEl.textContent = draftLevel.spawnInterval;
+  updateModeDependentVisibility();
 
   noteTogglesEl.innerHTML = '';
   for (const letter of LETTERS_ORDER) {
@@ -131,12 +167,13 @@ function readSettings() {
   const octaves = [...octaveTogglesEl.querySelectorAll('input:checked')].map((i) => Number(i.value));
   const durations = [...durationTogglesEl.querySelectorAll('input:checked')].map((i) => i.value);
   return {
+    mode: draftMode,
     speed: Number(speedRange.value),
+    spawnInterval: Number(spacingRange.value),
     letters,
     octaves,
     durations,
     accidentals: accidentalsCheck.checked,
-    spawnInterval: draftLevel.spawnInterval,
   };
 }
 
@@ -150,6 +187,9 @@ function validateSettings() {
 
 speedRange.addEventListener('input', () => {
   speedValueEl.textContent = speedRange.value;
+});
+spacingRange.addEventListener('input', () => {
+  spacingValueEl.textContent = spacingRange.value;
 });
 
 settingsBackBtn.addEventListener('click', () => {
@@ -186,17 +226,6 @@ function randomNoteData(settings) {
   return { step, accidental, letter, octave, duration };
 }
 
-function spawnNote() {
-  const data = randomNoteData(state.settings);
-  state.notes.push({
-    id: state.nextId++,
-    ...data,
-    x: CANVAS_W - 15,
-    judged: null,
-    isCurrentTarget: false,
-  });
-}
-
 function currentTarget() {
   return state.notes.find((n) => n.judged === null) || null;
 }
@@ -219,20 +248,40 @@ function disableOptions() {
   optionsEl.querySelectorAll('.option-btn').forEach((b) => { b.disabled = true; });
 }
 
-function answer(note, correct) {
-  if (note.judged !== null) return;
-  const midi = noteToMidi(note.letter, note.octave, note.accidental);
-  playMidiNote(midi);
-  if (correct) {
-    note.judged = 'correct';
-    state.streak += 1;
-    state.score += Math.round(10 * (1 + state.streak * 0.1));
-  } else {
-    note.judged = 'wrong';
-    state.streak = 0;
+function updateHud() {
+  scoreEl.textContent = String(state.score);
+  streakEl.textContent = String(state.streak);
+}
+
+function refreshTargetAndOptions() {
+  const target = currentTarget();
+  for (const note of state.notes) {
+    note.isCurrentTarget = note === target;
   }
-  disableOptions();
-  updateHud();
+  if (target && target.id !== state.lastTargetId) {
+    buildOptions(target);
+    state.lastTargetId = target.id;
+  }
+  render(ctx, state.notes, state.mode === 'scroll');
+}
+
+function scheduleTimeout(fn, delay) {
+  state.pendingTimeout = setTimeout(() => {
+    state.pendingTimeout = null;
+    fn();
+  }, delay);
+}
+
+// modo "scroll": notas nascem e se movem continuamente
+function spawnScrollNote() {
+  const data = randomNoteData(state.settings);
+  state.notes.push({
+    id: state.nextId++,
+    ...data,
+    x: CANVAS_W - 15,
+    judged: null,
+    isCurrentTarget: false,
+  });
 }
 
 function missNote(note) {
@@ -244,40 +293,6 @@ function missNote(note) {
   updateHud();
 }
 
-function updateHud() {
-  scoreEl.textContent = String(state.score);
-  streakEl.textContent = String(state.streak);
-}
-
-function startGame(level, settings) {
-  initAudio();
-  state = {
-    level,
-    settings,
-    notes: [],
-    score: 0,
-    streak: 0,
-    nextId: 0,
-    lastSpawn: settings.spawnInterval,
-    lastFrame: performance.now(),
-    lastTargetId: null,
-  };
-  levelNameEl.textContent = level.label;
-  updateHud();
-  optionsEl.innerHTML = '';
-  showScreen('game');
-  rafId = requestAnimationFrame(tick);
-}
-
-function stopGame() {
-  if (rafId) cancelAnimationFrame(rafId);
-  rafId = null;
-  if (state) saveBestScore(state.level.id, state.score);
-  state = null;
-  showScreen('menu');
-  buildMenu();
-}
-
 function tick(now) {
   const dt = Math.min((now - state.lastFrame) / 1000, 0.05);
   state.lastFrame = now;
@@ -285,7 +300,7 @@ function tick(now) {
 
   const maxOnScreen = 3;
   if (state.lastSpawn >= state.settings.spawnInterval && state.notes.length < maxOnScreen) {
-    spawnNote();
+    spawnScrollNote();
     state.lastSpawn = 0;
   }
 
@@ -296,20 +311,98 @@ function tick(now) {
     }
   }
 
-  const target = currentTarget();
-  for (const note of state.notes) {
-    note.isCurrentTarget = note === target;
-  }
-  if (target && target.id !== state.lastTargetId) {
-    buildOptions(target);
-    state.lastTargetId = target.id;
-  }
-
   state.notes = state.notes.filter((n) => n.x > STAFF_START_X - 60);
-
-  render(ctx, state.notes);
+  refreshTargetAndOptions();
 
   rafId = requestAnimationFrame(tick);
+}
+
+// modo "fixed5": 5 notas estáticas por vez, respondidas em sequência
+function spawnFixed5Batch() {
+  const xs = layoutXPositions(5);
+  state.notes = xs.map((x) => {
+    const data = randomNoteData(state.settings);
+    return { id: state.nextId++, ...data, x, judged: null, isCurrentTarget: false };
+  });
+  state.lastTargetId = null;
+  refreshTargetAndOptions();
+}
+
+// modo "single": uma nota estática por vez
+function spawnSingleNote() {
+  const data = randomNoteData(state.settings);
+  const [x] = layoutXPositions(1);
+  state.notes = [{ id: state.nextId++, ...data, x, judged: null, isCurrentTarget: false }];
+  state.lastTargetId = null;
+  refreshTargetAndOptions();
+}
+
+function answer(note, correct) {
+  if (note.judged !== null) return;
+  const midi = noteToMidi(note.letter, note.octave, note.accidental);
+  playMidiNote(midi);
+  note.judged = correct ? 'correct' : 'wrong';
+  if (correct) {
+    state.streak += 1;
+    state.score += Math.round(10 * (1 + state.streak * 0.1));
+  } else {
+    state.streak = 0;
+  }
+  disableOptions();
+  updateHud();
+
+  if (state.mode === 'scroll') return; // o loop de animação cuida do resto
+
+  render(ctx, state.notes, false);
+  if (state.mode === 'single') {
+    scheduleTimeout(spawnSingleNote, 700);
+  } else {
+    const hasNext = state.notes.some((n) => n.judged === null);
+    if (hasNext) {
+      scheduleTimeout(refreshTargetAndOptions, 250);
+    } else {
+      scheduleTimeout(spawnFixed5Batch, 900);
+    }
+  }
+}
+
+function startGame(level, settings) {
+  initAudio();
+  state = {
+    level,
+    settings,
+    mode: settings.mode,
+    notes: [],
+    score: 0,
+    streak: 0,
+    nextId: 0,
+    lastSpawn: settings.spawnInterval,
+    lastFrame: performance.now(),
+    lastTargetId: null,
+    pendingTimeout: null,
+  };
+  levelNameEl.textContent = level.label;
+  updateHud();
+  optionsEl.innerHTML = '';
+  showScreen('game');
+
+  if (state.mode === 'scroll') {
+    rafId = requestAnimationFrame(tick);
+  } else if (state.mode === 'fixed5') {
+    spawnFixed5Batch();
+  } else {
+    spawnSingleNote();
+  }
+}
+
+function stopGame() {
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+  if (state && state.pendingTimeout) clearTimeout(state.pendingTimeout);
+  if (state) saveBestScore(state.level.id, state.score);
+  state = null;
+  showScreen('menu');
+  buildMenu();
 }
 
 backBtn.addEventListener('click', stopGame);
