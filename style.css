@@ -290,7 +290,7 @@ h1 {
     flex: 1 1 auto;
     min-height: 0;
     width: 100%;
-    max-width: 68%;
+    max-width: 46%;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -311,8 +311,8 @@ h1 {
 
   .option-btn {
     aspect-ratio: unset;
-    height: 88px;
-    font-size: 22px;
-    border-radius: 16px;
+    height: 176px;
+    font-size: 34px;
+    border-radius: 18px;
   }
 }
