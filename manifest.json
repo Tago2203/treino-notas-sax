@@ -1,0 +1,14 @@
+{
+  "name": "Treino de Notas - Sax",
+  "short_name": "Treino Notas",
+  "description": "Treino de leitura de partitura na clave de sol com som real de saxofone",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbf6ee",
+  "theme_color": "#e07a3f",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

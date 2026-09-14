@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Treino de Notas - Sax</title>
+<meta name="theme-color" content="#e07a3f" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<main id="screen-menu">
+  <h1>🎷 Treino de Notas</h1>
+  <p class="subtitle">Leitura de partitura na clave de sol</p>
+  <div id="level-list"></div>
+</main>
+
+<main id="screen-game" hidden>
+  <div class="hud">
+    <button id="back-btn" class="icon-btn" aria-label="Voltar">←</button>
+    <span id="level-name"></span>
+    <span class="hud-stat">Pontos: <b id="score">0</b></span>
+    <span class="hud-stat">Sequência: <b id="streak">0</b></span>
+  </div>
+  <canvas id="staff"></canvas>
+  <div id="options"></div>
+</main>
+
+<script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0650_Aspirin_sf2_file.js"></script>
+<script type="module" src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

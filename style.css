@@ -1,0 +1,121 @@
+:root {
+  color-scheme: light;
+  --bg: #fbf6ee;
+  --ink: #23201b;
+  --accent: #e07a3f;
+  --accent-dark: #b85c28;
+  --card: #ffffff;
+  --border: #e6ddcc;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  min-height: 100dvh;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+h1 {
+  text-align: center;
+  margin: 12px 0 0;
+  font-size: clamp(24px, 6vw, 34px);
+}
+
+.subtitle {
+  text-align: center;
+  color: #6b6255;
+  margin: 4px 0 28px;
+}
+
+#level-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.level-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 16px;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.level-btn:active { transform: scale(0.98); }
+
+.level-btn-title { font-weight: 700; font-size: 19px; color: var(--accent-dark); }
+.level-btn-desc { color: #6b6255; font-size: 14px; }
+.level-btn-best { font-size: 13px; color: #8a8272; margin-top: 6px; }
+
+.hud {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.icon-btn {
+  border: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+#level-name { font-weight: 700; margin-right: auto; }
+.hud-stat { font-size: 14px; color: #6b6255; }
+.hud-stat b { color: var(--ink); font-size: 16px; }
+
+#staff {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  touch-action: none;
+}
+
+#options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.option-btn {
+  min-width: 68px;
+  min-height: 48px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.option-btn:active {
+  background: var(--accent);
+  color: white;
+}
