@@ -30,3 +30,25 @@ export function noteLabel(letter, accidental = 0) {
   if (accidental === -1) return base + 'b';
   return base;
 }
+
+// Cores vibrantes fixas por nota (estilo Boomwhackers), usadas nos botões de resposta.
+export const NOTE_COLORS = {
+  C: { bg: '#e63946', fg: '#ffffff' },
+  D: { bg: '#f3722c', fg: '#ffffff' },
+  E: { bg: '#f9c74f', fg: '#3d2b00' },
+  F: { bg: '#43aa8b', fg: '#ffffff' },
+  G: { bg: '#277da1', fg: '#ffffff' },
+  A: { bg: '#5e60ce', fg: '#ffffff' },
+  B: { bg: '#d63384', fg: '#ffffff' },
+};
+
+export const DURATION_OPTIONS = [
+  { id: 'semibreve', label: 'Semibreve' },
+  { id: 'minima', label: 'Mínima' },
+  { id: 'seminima', label: 'Semínima' },
+  { id: 'colcheia', label: 'Colcheia' },
+  { id: 'semicolcheia', label: 'Semicolcheia' },
+];
+
+export const OCTAVE_OPTIONS = [3, 4, 5, 6];
+

@@ -18,6 +18,44 @@
   <div id="level-list"></div>
 </main>
 
+<main id="screen-settings" hidden>
+  <div class="hud">
+    <button id="settings-back-btn" class="icon-btn" aria-label="Voltar">←</button>
+    <span id="settings-level-name"></span>
+  </div>
+
+  <div class="settings-block">
+    <label class="settings-label" for="speed-range">Velocidade: <b id="speed-value"></b> px/s</label>
+    <input type="range" id="speed-range" min="25" max="220" step="5" />
+  </div>
+
+  <div class="settings-block">
+    <p class="settings-label">Notas que podem aparecer</p>
+    <div id="note-toggles" class="note-toggle-list"></div>
+  </div>
+
+  <div class="settings-block">
+    <p class="settings-label">Oitavas</p>
+    <div id="octave-toggles" class="chip-list"></div>
+  </div>
+
+  <div class="settings-block">
+    <p class="settings-label">Figuras rítmicas que podem passar</p>
+    <div id="duration-toggles" class="chip-list"></div>
+  </div>
+
+  <div class="settings-block">
+    <label class="chip">
+      <input type="checkbox" id="accidentals-check" />
+      Incluir sustenidos (♯) e bemóis (♭)
+    </label>
+  </div>
+
+  <p id="settings-warning" class="settings-warning" hidden>Selecione pelo menos uma nota, uma oitava e uma figura rítmica.</p>
+
+  <button id="start-btn" class="start-btn">Iniciar ▶</button>
+</main>
+
 <main id="screen-game" hidden>
   <div class="hud">
     <button id="back-btn" class="icon-btn" aria-label="Voltar">←</button>

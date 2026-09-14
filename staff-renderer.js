@@ -75,9 +75,37 @@ function colorForNote(note) {
   return '#222';
 }
 
+const DURATION_SHAPE = {
+  semibreve: { hollow: true, stem: false, flags: 0 },
+  minima: { hollow: true, stem: true, flags: 0 },
+  seminima: { hollow: false, stem: true, flags: 0 },
+  colcheia: { hollow: false, stem: true, flags: 1 },
+  semicolcheia: { hollow: false, stem: true, flags: 2 },
+};
+
+function drawFlags(ctx, x, stemEndY, stemUp, color, count) {
+  ctx.fillStyle = color;
+  for (let i = 0; i < count; i++) {
+    const y0 = stemEndY + (stemUp ? i * 8 : -i * 8);
+    ctx.beginPath();
+    if (stemUp) {
+      ctx.moveTo(x, y0);
+      ctx.quadraticCurveTo(x + 14, y0 + 6, x + 10, y0 + 20);
+      ctx.quadraticCurveTo(x + 6, y0 + 12, x, y0 + 6);
+    } else {
+      ctx.moveTo(x, y0);
+      ctx.quadraticCurveTo(x + 14, y0 - 6, x + 10, y0 - 20);
+      ctx.quadraticCurveTo(x + 6, y0 - 12, x, y0 - 6);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
 export function drawNote(ctx, note) {
   const y = stepToY(note.step);
   const color = colorForNote(note);
+  const shape = DURATION_SHAPE[note.duration] || DURATION_SHAPE.seminima;
 
   drawLedgerLines(ctx, note.x, note.step, color);
 
@@ -90,20 +118,35 @@ export function drawNote(ctx, note) {
   ctx.save();
   ctx.translate(note.x, y);
   ctx.rotate(-0.35);
-  ctx.fillStyle = color;
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = color;
   ctx.beginPath();
   ctx.ellipse(0, 0, 8.5, 6.2, 0, 0, Math.PI * 2);
-  ctx.fill();
+  if (shape.hollow) {
+    ctx.fillStyle = '#fffdf7';
+    ctx.fill();
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
   ctx.restore();
 
-  // haste simples
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  const stemUp = note.step < 4;
-  ctx.moveTo(note.x + (stemUp ? 8 : -8), y);
-  ctx.lineTo(note.x + (stemUp ? 8 : -8), y + (stemUp ? -34 : 34));
-  ctx.stroke();
+  if (shape.stem) {
+    const stemUp = note.step < 4;
+    const stemX = note.x + (stemUp ? 8 : -8);
+    const stemEndY = y + (stemUp ? -34 : 34);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(stemX, y);
+    ctx.lineTo(stemX, stemEndY);
+    ctx.stroke();
+
+    if (shape.flags > 0) {
+      drawFlags(ctx, stemX, stemEndY, stemUp, color, shape.flags);
+    }
+  }
 }
 
 export function render(ctx, notes) {
