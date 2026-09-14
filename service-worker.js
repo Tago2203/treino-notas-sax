@@ -1,4 +1,4 @@
-const CACHE_NAME = 'treino-notas-sax-v1';
+const CACHE_NAME = 'treino-notas-sax-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -29,10 +29,21 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Network-first pros arquivos do próprio site: sempre busca a versão mais
+// nova quando há internet, e só usa o cache como reserva pra funcionar
+// offline. Assim uma atualização aparece na hora, sem precisar trocar o
+// nome do cache a cada deploy.
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return; // não mexe nos CDNs externos (WebAudioFont)
+
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    fetch(event.request)
+      .then((response) => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
