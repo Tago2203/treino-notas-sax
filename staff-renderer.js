@@ -8,13 +8,11 @@ export const JUDGE_X = 190;
 export const BASE_Y = 210; // y da linha de baixo (Mi4, step 0)
 export const STEP_PX = 9; // px por step diatônico (metade do espaçamento entre linhas)
 
-// A resolução física do canvas é menor que o sistema de coordenadas usado
-// pra desenhar (acima). O navegador esticando um canvas de resolução menor
-// pro mesmo tamanho em tela faz tudo ficar proporcionalmente maior, sem
-// precisar recalcular nenhuma coordenada de desenho.
-const RENDER_SCALE = 1 / 2.52;
-export const CANVAS_PHYSICAL_W = Math.round(CANVAS_W * RENDER_SCALE);
-export const CANVAS_PHYSICAL_H = Math.round(CANVAS_H * RENDER_SCALE);
+// Quanto maior a pauta aparenta ser, comparado ao tamanho "natural" que
+// caberia na tela. A resolução real do canvas (em pixels físicos) é
+// calculada em app.js com base no tamanho de tela + zoom + densidade de
+// pixels do aparelho, pra ficar nítido em qualquer tela (celular, retina, 4K).
+export const ZOOM = 2.52;
 
 function stepToY(step) {
   return BASE_Y - step * STEP_PX;
@@ -175,8 +173,12 @@ function drawErrorMark(ctx, x, y, color) {
 }
 
 export function render(ctx, notes, showJudgeLine = true) {
+  // Escala calculada a partir da resolução física real do canvas (definida
+  // em app.js), então o desenho sempre preenche o buffer inteiro nitidamente,
+  // sem depender de um fator fixo.
+  const scale = ctx.canvas.width / CANVAS_W;
   ctx.save();
-  ctx.scale(RENDER_SCALE, RENDER_SCALE);
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
   drawStaff(ctx, showJudgeLine);
   for (const note of notes) {
     drawNote(ctx, note);

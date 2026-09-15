@@ -91,7 +91,7 @@ h1 {
 
 #staff {
   width: 100%;
-  height: auto;
+  aspect-ratio: 900 / 320;
   display: block;
   touch-action: none;
 }

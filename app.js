@@ -9,7 +9,7 @@ import {
   OCTAVE_OPTIONS,
 } from './theory.js';
 import { initAudio, playMidiNote, playErrorSound } from './audio-engine.js';
-import { CANVAS_W, CANVAS_PHYSICAL_W, CANVAS_PHYSICAL_H, STAFF_START_X, render, layoutXPositions } from './staff-renderer.js';
+import { CANVAS_W, ZOOM, STAFF_START_X, render, layoutXPositions } from './staff-renderer.js';
 
 const STORAGE_PREFIX = 'treino-notas-sax:best:';
 
@@ -46,8 +46,22 @@ const optionsEl = document.getElementById('options');
 const canvas = document.getElementById('staff');
 const ctx = canvas.getContext('2d');
 
-canvas.width = CANVAS_PHYSICAL_W;
-canvas.height = CANVAS_PHYSICAL_H;
+// Dimensiona o canvas com a resolução física real da tela (considerando a
+// densidade de pixels do aparelho) multiplicada pelo zoom desejado, pra
+// pauta ficar grande E nítida, em vez de esticar uma imagem pequena.
+function fitCanvasResolution() {
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  const dpr = window.devicePixelRatio || 1;
+  const width = Math.round(rect.width * dpr * ZOOM);
+  const height = Math.round(rect.height * dpr * ZOOM);
+  if (canvas.width !== width) canvas.width = width;
+  if (canvas.height !== height) canvas.height = height;
+}
+
+window.addEventListener('resize', () => {
+  if (!gameScreen.hidden) fitCanvasResolution();
+});
 
 let state = null;
 let rafId = null;
@@ -402,6 +416,10 @@ function startGame(level, settings) {
   } else {
     spawnSingleNote();
   }
+
+  // espera os botões de resposta existirem (mudam a altura disponível pra
+  // pauta) e o layout se estabilizar antes de medir o tamanho real da tela.
+  requestAnimationFrame(() => requestAnimationFrame(fitCanvasResolution));
 }
 
 function stopGame() {
