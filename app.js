@@ -8,7 +8,7 @@ import {
   DURATION_OPTIONS,
   OCTAVE_OPTIONS,
 } from './theory.js';
-import { initAudio, playMidiNote } from './audio-engine.js';
+import { initAudio, playMidiNote, playErrorSound } from './audio-engine.js';
 import { CANVAS_W, CANVAS_PHYSICAL_W, CANVAS_PHYSICAL_H, STAFF_START_X, render, layoutXPositions } from './staff-renderer.js';
 
 const STORAGE_PREFIX = 'treino-notas-sax:best:';
@@ -286,6 +286,7 @@ function spawnScrollNote() {
 
 function missNote(note) {
   note.judged = 'missed';
+  playErrorSound();
   const midi = noteToMidi(note.letter, note.octave, note.accidental);
   playMidiNote(midi);
   state.streak = 0;
@@ -338,6 +339,7 @@ function spawnSingleNote() {
 
 function answer(note, correct) {
   if (note.judged !== null) return;
+  if (!correct) playErrorSound();
   const midi = noteToMidi(note.letter, note.octave, note.accidental);
   playMidiNote(midi);
   note.judged = correct ? 'correct' : 'wrong';

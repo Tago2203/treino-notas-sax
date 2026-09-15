@@ -12,7 +12,7 @@ export const STEP_PX = 9; // px por step diatônico (metade do espaçamento entr
 // pra desenhar (acima). O navegador esticando um canvas de resolução menor
 // pro mesmo tamanho em tela faz tudo ficar proporcionalmente maior, sem
 // precisar recalcular nenhuma coordenada de desenho.
-const RENDER_SCALE = 1 / 1.8;
+const RENDER_SCALE = 1 / 2.52;
 export const CANVAS_PHYSICAL_W = Math.round(CANVAS_W * RENDER_SCALE);
 export const CANVAS_PHYSICAL_H = Math.round(CANVAS_H * RENDER_SCALE);
 
@@ -153,6 +153,25 @@ export function drawNote(ctx, note) {
       drawFlags(ctx, stemX, stemEndY, stemUp, color, shape.flags);
     }
   }
+
+  if (note.judged === 'wrong' || note.judged === 'missed') {
+    drawErrorMark(ctx, note.x, y, color);
+  }
+}
+
+function drawErrorMark(ctx, x, y, color) {
+  const s = 13;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x - s, y - s);
+  ctx.lineTo(x + s, y + s);
+  ctx.moveTo(x + s, y - s);
+  ctx.lineTo(x - s, y + s);
+  ctx.stroke();
+  ctx.restore();
 }
 
 export function render(ctx, notes, showJudgeLine = true) {

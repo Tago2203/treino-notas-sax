@@ -34,3 +34,22 @@ export function playMidiNote(midiNumber, duration = 1.3) {
   if (!preset || !player) return;
   player.queueWaveTable(audioContext, audioContext.destination, preset, 0, midiNumber, duration);
 }
+
+// Bipe curto de erro (dois tons descendentes), sem depender do WebAudioFont.
+export function playErrorSound() {
+  ensureContext();
+  const t0 = audioContext.currentTime;
+  const gain = audioContext.createGain();
+  gain.gain.setValueAtTime(0.001, t0);
+  gain.gain.exponentialRampToValueAtTime(0.3, t0 + 0.02);
+  gain.connect(audioContext.destination);
+
+  const osc = audioContext.createOscillator();
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(300, t0);
+  osc.frequency.exponentialRampToValueAtTime(140, t0 + 0.22);
+  osc.connect(gain);
+  gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.24);
+  osc.start(t0);
+  osc.stop(t0 + 0.25);
+}
