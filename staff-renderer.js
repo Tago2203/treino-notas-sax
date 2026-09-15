@@ -13,8 +13,7 @@ function stepToY(step) {
 }
 
 export function drawStaff(ctx, showJudgeLine = true) {
-  ctx.fillStyle = '#fffdf7';
-  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+  ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
 
   // 5 linhas da pauta (steps 0,2,4,6,8)
   ctx.strokeStyle = '#000000';
@@ -70,10 +69,10 @@ function drawLedgerLines(ctx, x, step, color) {
 }
 
 function colorForNote(note) {
-  if (note.judged === 'correct') return '#2e9e4f';
-  if (note.judged === 'wrong' || note.judged === 'missed') return '#d64545';
-  if (note.isCurrentTarget) return '#e07a3f';
-  return '#222';
+  if (note.judged === 'correct') return '#00c853';
+  if (note.judged === 'wrong' || note.judged === 'missed') return '#ff1744';
+  if (note.isCurrentTarget) return '#2979ff';
+  return '#000000';
 }
 
 const DURATION_SHAPE = {
@@ -124,8 +123,6 @@ export function drawNote(ctx, note) {
   ctx.beginPath();
   ctx.ellipse(0, 0, 8.5, 6.2, 0, 0, Math.PI * 2);
   if (shape.hollow) {
-    ctx.fillStyle = '#fffdf7';
-    ctx.fill();
     ctx.stroke();
   } else {
     ctx.fillStyle = color;

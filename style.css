@@ -93,8 +93,6 @@ h1 {
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 14px;
-  border: 1px solid var(--border);
   touch-action: none;
 }
 
@@ -290,7 +288,7 @@ h1 {
     flex: 1 1 auto;
     min-height: 0;
     width: 100%;
-    max-width: 46%;
+    max-width: 94%;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -307,12 +305,14 @@ h1 {
     flex: 0 0 auto;
     margin-top: 0;
     max-width: none;
+    justify-content: center;
   }
 
   .option-btn {
-    aspect-ratio: unset;
-    height: 176px;
-    font-size: 34px;
-    border-radius: 18px;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    width: auto;
+    font-size: 28px;
+    border-radius: 16px;
   }
 }
