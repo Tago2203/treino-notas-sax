@@ -1,18 +1,31 @@
 // Desenha a pauta (clave de sol), notas em movimento e linha de julgamento num Canvas 2D.
 
-export const CANVAS_W = 900;
-export const CANVAS_H = 320;
+// CANVAS_W/CANVAS_H definem o sistema de coordenadas do desenho. Foram
+// encolhidos (eram 900x320) mantendo os outros números (STEP_PX, raio das
+// notas, fonte da clave etc.) do mesmo tamanho de antes — como esses
+// elementos passam a ocupar uma fração maior desse canvas menor, a pauta
+// aparenta ser maior na tela. O aspect-ratio no CSS (#staff) precisa ser
+// CANVAS_W/CANVAS_H. Mudar CANVAS_W também muda a distância (em "pixels"
+// lógicos) que uma nota percorre no modo "notas passando" — por isso as
+// velocidades em levels.js foram reduzidas na mesma proporção, pra manter
+// a mesma sensação de velocidade real na tela.
+export const CANVAS_W = 700;
+// CANVAS_H calculado pra caber com folga a nota mais grave (Dó3) até a mais
+// aguda (Si6) possíveis no jogo (oitavas 3 a 6, todas as notas — a faixa do
+// nível "Avançado"/"Personalizado" com tudo marcado), com margem de sobra
+// pra cabeça da nota e acidentes. É por isso que não dá pra apertar mais
+// sem cortar nota em algum nível/configuração.
+export const CANVAS_H = 291;
 export const STAFF_START_X = 110;
 export const STAFF_END_X = CANVAS_W - 20;
 export const JUDGE_X = 190;
-export const BASE_Y = 210; // y da linha de baixo (Mi4, step 0)
+export const BASE_Y = 186; // y da linha de baixo (Mi4, step 0)
 export const STEP_PX = 9; // px por step diatônico (metade do espaçamento entre linhas)
 
-// Quanto maior a pauta aparenta ser, comparado ao tamanho "natural" que
-// caberia na tela. A resolução real do canvas (em pixels físicos) é
-// calculada em app.js com base no tamanho de tela + zoom + densidade de
-// pixels do aparelho, pra ficar nítido em qualquer tela (celular, retina, 4K).
-export const ZOOM = 2.52;
+// Resolução física do canvas = tamanho exibido em tela × densidade de
+// pixels do aparelho × esse fator extra, calculado em app.js. Não afeta o
+// tamanho visual (isso é o CANVAS_H acima); só garante nitidez.
+export const ZOOM = 1.0;
 
 function stepToY(step) {
   return BASE_Y - step * STEP_PX;
