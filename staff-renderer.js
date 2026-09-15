@@ -8,6 +8,14 @@ export const JUDGE_X = 190;
 export const BASE_Y = 210; // y da linha de baixo (Mi4, step 0)
 export const STEP_PX = 9; // px por step diatônico (metade do espaçamento entre linhas)
 
+// A resolução física do canvas é menor que o sistema de coordenadas usado
+// pra desenhar (acima). O navegador esticando um canvas de resolução menor
+// pro mesmo tamanho em tela faz tudo ficar proporcionalmente maior, sem
+// precisar recalcular nenhuma coordenada de desenho.
+const RENDER_SCALE = 1 / 1.8;
+export const CANVAS_PHYSICAL_W = Math.round(CANVAS_W * RENDER_SCALE);
+export const CANVAS_PHYSICAL_H = Math.round(CANVAS_H * RENDER_SCALE);
+
 function stepToY(step) {
   return BASE_Y - step * STEP_PX;
 }
@@ -148,10 +156,13 @@ export function drawNote(ctx, note) {
 }
 
 export function render(ctx, notes, showJudgeLine = true) {
+  ctx.save();
+  ctx.scale(RENDER_SCALE, RENDER_SCALE);
   drawStaff(ctx, showJudgeLine);
   for (const note of notes) {
     drawNote(ctx, note);
   }
+  ctx.restore();
 }
 
 export function layoutXPositions(count) {

@@ -9,7 +9,7 @@ import {
   OCTAVE_OPTIONS,
 } from './theory.js';
 import { initAudio, playMidiNote } from './audio-engine.js';
-import { CANVAS_W, CANVAS_H, STAFF_START_X, render, layoutXPositions } from './staff-renderer.js';
+import { CANVAS_W, CANVAS_PHYSICAL_W, CANVAS_PHYSICAL_H, STAFF_START_X, render, layoutXPositions } from './staff-renderer.js';
 
 const STORAGE_PREFIX = 'treino-notas-sax:best:';
 
@@ -46,8 +46,8 @@ const optionsEl = document.getElementById('options');
 const canvas = document.getElementById('staff');
 const ctx = canvas.getContext('2d');
 
-canvas.width = CANVAS_W;
-canvas.height = CANVAS_H;
+canvas.width = CANVAS_PHYSICAL_W;
+canvas.height = CANVAS_PHYSICAL_H;
 
 let state = null;
 let rafId = null;
