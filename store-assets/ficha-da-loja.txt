@@ -1,0 +1,32 @@
+FICHA DA LOJA - Play Console
+=============================
+(copie e cole cada campo no Play Console > sua app > Presença na loja > Ficha da loja principal)
+
+TÍTULO DO APP (máx. 30 caracteres):
+Treino de Notas
+
+DESCRIÇÃO CURTA (máx. 80 caracteres):
+Treine leitura de partitura na clave de sol pro saxofone, no seu ritmo.
+
+DESCRIÇÃO COMPLETA (máx. 4000 caracteres):
+Treino de Notas é um app simples e direto pra treinar leitura de partitura na clave de sol, pensado pra quem estuda saxofone (funciona pra qualquer instrumento em clave de sol).
+
+COMO FUNCIONA
+Escolha um nível (Iniciante, Básico, Intermediário, Avançado ou Personalizado) e responda qual é a nota mostrada na pauta, tocando no botão correspondente (Dó, Ré, Mi, Fá, Sol, Lá, Si).
+
+MODOS DE JOGO
+- Notas passando: as notas se movem pela pauta, você responde antes que cheguem na linha de julgamento.
+- Crescente: a velocidade aumenta a cada acerto e volta ao normal quando você erra — bom pra testar seus limites.
+- Sequência de 5: cinco notas fixas, responda em ordem.
+- Nota única: uma nota por vez, sem pressa, ideal pra quem está começando.
+
+PERSONALIZE DO SEU JEITO
+- Escolha quais notas, oitavas e figuras rítmicas (semínima e mínima) podem aparecer.
+- Ajuste a velocidade e o espaçamento entre as notas, inclusive durante a partida.
+- Inclua sustenidos e bemóis pra praticar acidentes.
+- Mute o som quando quiser, direto na tela do jogo.
+
+OFFLINE, SEM ANÚNCIOS, SEM CADASTRO
+O app funciona 100% sem internet, não mostra anúncios e não pede nenhum cadastro. Sua melhor pontuação de cada nível fica salva só no seu aparelho.
+
+Bons estudos! 🎷
