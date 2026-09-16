@@ -91,7 +91,7 @@ h1 {
 
 #staff {
   width: 100%;
-  aspect-ratio: 700 / 291;
+  aspect-ratio: 700 / 323;
   display: block;
   touch-action: none;
 }
@@ -99,18 +99,18 @@ h1 {
 #options {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  gap: 10px;
   margin-top: 18px;
-  max-width: 560px;
+  max-width: 720px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .option-btn {
   aspect-ratio: 1 / 1;
-  border-radius: 12px;
+  border-radius: 14px;
   border: none;
-  font-size: 15px;
+  font-size: 19px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -130,7 +130,7 @@ h1 {
 }
 
 @media (max-width: 520px) {
-  #options { grid-template-columns: repeat(4, 1fr); max-width: 320px; }
+  #options { grid-template-columns: repeat(4, 1fr); max-width: 380px; }
 }
 
 /* --- Tela de configurações --- */
@@ -145,8 +145,16 @@ h1 {
   display: block;
 }
 
-#speed-range {
+.settings-select {
   width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .chip-list, .note-toggle-list {
@@ -312,7 +320,7 @@ h1 {
     aspect-ratio: 1 / 1;
     height: auto;
     width: auto;
-    font-size: 28px;
-    border-radius: 16px;
+    font-size: 34px;
+    border-radius: 18px;
   }
 }

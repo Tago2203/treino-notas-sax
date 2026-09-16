@@ -44,11 +44,8 @@ export const NOTE_COLORS = {
 };
 
 export const DURATION_OPTIONS = [
-  { id: 'semibreve', label: 'Semibreve' },
-  { id: 'minima', label: 'Mínima' },
   { id: 'seminima', label: 'Semínima' },
-  { id: 'colcheia', label: 'Colcheia' },
-  { id: 'semicolcheia', label: 'Semicolcheia' },
+  { id: 'minima', label: 'Mínima' },
 ];
 
 export const OCTAVE_OPTIONS = [3, 4, 5, 6];

@@ -27,11 +27,9 @@ const settingsBackBtn = document.getElementById('settings-back-btn');
 const settingsLevelNameEl = document.getElementById('settings-level-name');
 const modeTogglesEl = document.getElementById('mode-toggles');
 const speedBlock = document.getElementById('speed-block');
-const speedRange = document.getElementById('speed-range');
-const speedValueEl = document.getElementById('speed-value');
+const speedSelect = document.getElementById('speed-select');
 const spacingBlock = document.getElementById('spacing-block');
-const spacingRange = document.getElementById('spacing-range');
-const spacingValueEl = document.getElementById('spacing-value');
+const spacingSelect = document.getElementById('spacing-select');
 const noteTogglesEl = document.getElementById('note-toggles');
 const octaveTogglesEl = document.getElementById('octave-toggles');
 const durationTogglesEl = document.getElementById('duration-toggles');
@@ -127,10 +125,8 @@ function openSettings(levelId) {
     modeTogglesEl.appendChild(label);
   }
 
-  speedRange.value = String(draftLevel.speed);
-  speedValueEl.textContent = draftLevel.speed;
-  spacingRange.value = String(draftLevel.spawnInterval);
-  spacingValueEl.textContent = draftLevel.spawnInterval;
+  speedSelect.value = String(draftLevel.speed);
+  spacingSelect.value = String(draftLevel.spawnInterval);
   updateModeDependentVisibility();
 
   noteTogglesEl.innerHTML = '';
@@ -182,8 +178,8 @@ function readSettings() {
   const durations = [...durationTogglesEl.querySelectorAll('input:checked')].map((i) => i.value);
   return {
     mode: draftMode,
-    speed: Number(speedRange.value),
-    spawnInterval: Number(spacingRange.value),
+    speed: Number(speedSelect.value),
+    spawnInterval: Number(spacingSelect.value),
     letters,
     octaves,
     durations,
@@ -198,13 +194,6 @@ function validateSettings() {
   startBtn.disabled = !valid;
   return valid;
 }
-
-speedRange.addEventListener('input', () => {
-  speedValueEl.textContent = speedRange.value;
-});
-spacingRange.addEventListener('input', () => {
-  spacingValueEl.textContent = spacingRange.value;
-});
 
 settingsBackBtn.addEventListener('click', () => {
   showScreen('menu');

@@ -15,12 +15,16 @@ export const CANVAS_W = 700;
 // nível "Avançado"/"Personalizado" com tudo marcado), com margem de sobra
 // pra cabeça da nota e acidentes. É por isso que não dá pra apertar mais
 // sem cortar nota em algum nível/configuração.
-export const CANVAS_H = 291;
+// Aumentado ~11% (291->323, mantendo a mesma proporção de margem de sobra)
+// pra deixar clave, linhas e notas maiores, sem mexer em CANVAS_W/STAFF_START_X/
+// JUDGE_X — que definem a distância percorrida no modo "notas passando" e,
+// portanto, o significado das velocidades (px/s) escolhidas nas configurações.
+export const CANVAS_H = 323;
 export const STAFF_START_X = 110;
 export const STAFF_END_X = CANVAS_W - 20;
 export const JUDGE_X = 190;
-export const BASE_Y = 186; // y da linha de baixo (Mi4, step 0)
-export const STEP_PX = 9; // px por step diatônico (metade do espaçamento entre linhas)
+export const BASE_Y = 207; // y da linha de baixo (Mi4, step 0)
+export const STEP_PX = 10; // px por step diatônico (metade do espaçamento entre linhas)
 
 // Resolução física do canvas = tamanho exibido em tela × densidade de
 // pixels do aparelho × esse fator extra, calculado em app.js. Não afeta o
@@ -36,7 +40,7 @@ export function drawStaff(ctx, showJudgeLine = true) {
 
   // 5 linhas da pauta (steps 0,2,4,6,8)
   ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 1.1;
+  ctx.lineWidth = 1.2;
   for (let s = 0; s <= 8; s += 2) {
     const y = stepToY(s);
     ctx.beginPath();
@@ -47,14 +51,14 @@ export function drawStaff(ctx, showJudgeLine = true) {
 
   // clave de sol
   ctx.fillStyle = '#222';
-  ctx.font = '74px serif';
+  ctx.font = '82px serif';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillText('𝄞', 30, stepToY(2) + 26);
+  ctx.fillText('𝄞', 30, stepToY(2) + 29);
 
   if (showJudgeLine) {
     ctx.save();
     ctx.strokeStyle = '#e07a3f';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.2;
     ctx.setLineDash([6, 5]);
     ctx.beginPath();
     ctx.moveTo(JUDGE_X, stepToY(10));
@@ -66,8 +70,8 @@ export function drawStaff(ctx, showJudgeLine = true) {
 
 function drawLedgerLines(ctx, x, step, color) {
   ctx.strokeStyle = color;
-  ctx.lineWidth = 1.5;
-  const halfWidth = 15;
+  ctx.lineWidth = 1.7;
+  const halfWidth = 17;
   if (step > 8) {
     for (let s = 10; s <= step; s += 2) {
       const y = stepToY(s);
@@ -105,16 +109,16 @@ const DURATION_SHAPE = {
 function drawFlags(ctx, x, stemEndY, stemUp, color, count) {
   ctx.fillStyle = color;
   for (let i = 0; i < count; i++) {
-    const y0 = stemEndY + (stemUp ? i * 8 : -i * 8);
+    const y0 = stemEndY + (stemUp ? i * 9 : -i * 9);
     ctx.beginPath();
     if (stemUp) {
       ctx.moveTo(x, y0);
-      ctx.quadraticCurveTo(x + 14, y0 + 6, x + 10, y0 + 20);
-      ctx.quadraticCurveTo(x + 6, y0 + 12, x, y0 + 6);
+      ctx.quadraticCurveTo(x + 16, y0 + 7, x + 11, y0 + 22);
+      ctx.quadraticCurveTo(x + 7, y0 + 13, x, y0 + 7);
     } else {
       ctx.moveTo(x, y0);
-      ctx.quadraticCurveTo(x + 14, y0 - 6, x + 10, y0 - 20);
-      ctx.quadraticCurveTo(x + 6, y0 - 12, x, y0 - 6);
+      ctx.quadraticCurveTo(x + 16, y0 - 7, x + 11, y0 - 22);
+      ctx.quadraticCurveTo(x + 7, y0 - 13, x, y0 - 7);
     }
     ctx.closePath();
     ctx.fill();
@@ -130,17 +134,17 @@ export function drawNote(ctx, note) {
 
   if (note.accidental !== 0) {
     ctx.fillStyle = color;
-    ctx.font = 'bold 22px serif';
-    ctx.fillText(note.accidental === 1 ? '♯' : '♭', note.x - 24, y + 7);
+    ctx.font = 'bold 24px serif';
+    ctx.fillText(note.accidental === 1 ? '♯' : '♭', note.x - 27, y + 8);
   }
 
   ctx.save();
   ctx.translate(note.x, y);
   ctx.rotate(-0.35);
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.2;
   ctx.strokeStyle = color;
   ctx.beginPath();
-  ctx.ellipse(0, 0, 8.5, 6.2, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 0, 9.5, 6.9, 0, 0, Math.PI * 2);
   if (shape.hollow) {
     ctx.stroke();
   } else {
@@ -151,10 +155,10 @@ export function drawNote(ctx, note) {
 
   if (shape.stem) {
     const stemUp = note.step < 4;
-    const stemX = note.x + (stemUp ? 8 : -8);
-    const stemEndY = y + (stemUp ? -34 : 34);
+    const stemX = note.x + (stemUp ? 9 : -9);
+    const stemEndY = y + (stemUp ? -38 : 38);
     ctx.strokeStyle = color;
-    ctx.lineWidth = 1.8;
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(stemX, y);
     ctx.lineTo(stemX, stemEndY);
@@ -171,10 +175,10 @@ export function drawNote(ctx, note) {
 }
 
 function drawErrorMark(ctx, x, y, color) {
-  const s = 13;
+  const s = 14;
   ctx.save();
   ctx.strokeStyle = color;
-  ctx.lineWidth = 3.5;
+  ctx.lineWidth = 3.9;
   ctx.lineCap = 'round';
   ctx.beginPath();
   ctx.moveTo(x - s, y - s);

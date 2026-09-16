@@ -30,13 +30,24 @@
   </div>
 
   <div class="settings-block" id="speed-block">
-    <label class="settings-label" for="speed-range">Velocidade: <b id="speed-value"></b> px/s</label>
-    <input type="range" id="speed-range" min="20" max="170" step="5" />
+    <label class="settings-label" for="speed-select">Velocidade</label>
+    <select id="speed-select" class="settings-select">
+      <option value="20">20 px/s</option>
+      <option value="50">50 px/s</option>
+      <option value="100">100 px/s</option>
+      <option value="130">130 px/s</option>
+      <option value="170">170 px/s</option>
+    </select>
   </div>
 
   <div class="settings-block" id="spacing-block">
-    <label class="settings-label" for="spacing-range">Espaçamento entre notas: <b id="spacing-value"></b> s</label>
-    <input type="range" id="spacing-range" min="0.6" max="4" step="0.1" />
+    <label class="settings-label" for="spacing-select">Espaçamento entre notas</label>
+    <select id="spacing-select" class="settings-select">
+      <option value="0.5">0,5 s</option>
+      <option value="0.8">0,8 s</option>
+      <option value="1">1 s</option>
+      <option value="1.3">1,3 s</option>
+    </select>
   </div>
 
   <div class="settings-block">
