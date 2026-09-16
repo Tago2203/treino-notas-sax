@@ -30,24 +30,13 @@
   </div>
 
   <div class="settings-block" id="speed-block">
-    <label class="settings-label" for="speed-select">Velocidade</label>
-    <select id="speed-select" class="settings-select">
-      <option value="20">20 px/s</option>
-      <option value="50">50 px/s</option>
-      <option value="100">100 px/s</option>
-      <option value="130">130 px/s</option>
-      <option value="170">170 px/s</option>
-    </select>
+    <p class="settings-label">Velocidade</p>
+    <div id="speed-toggles" class="chip-list"></div>
   </div>
 
   <div class="settings-block" id="spacing-block">
-    <label class="settings-label" for="spacing-select">Espaçamento entre notas</label>
-    <select id="spacing-select" class="settings-select">
-      <option value="0.5">0,5 s</option>
-      <option value="0.8">0,8 s</option>
-      <option value="1">1 s</option>
-      <option value="1.3">1,3 s</option>
-    </select>
+    <p class="settings-label">Espaçamento entre notas</p>
+    <div id="spacing-toggles" class="chip-list"></div>
   </div>
 
   <div class="settings-block">
@@ -83,6 +72,16 @@
     <span id="level-name"></span>
     <span class="hud-stat">Pontos: <b id="score">0</b></span>
     <span class="hud-stat">Sequência: <b id="streak">0</b></span>
+    <span class="hud-stat" id="ramp-speed-stat" hidden>Velocidade: <b id="ramp-speed">0</b> px/s</span>
+    <button id="mute-btn" class="icon-btn" aria-label="Mutar som">🔊</button>
+  </div>
+  <div id="game-controls" class="game-controls" hidden>
+    <label class="game-control">Vel.
+      <select id="game-speed-select" class="settings-select settings-select-sm"></select>
+    </label>
+    <label class="game-control">Espaç.
+      <select id="game-spacing-select" class="settings-select settings-select-sm"></select>
+    </label>
   </div>
   <div id="staff-wrap">
     <canvas id="staff"></canvas>
@@ -95,8 +94,8 @@
   <p>Gire o celular na horizontal pra jogar</p>
 </div>
 
-<script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
-<script src="https://surikov.github.io/webaudiofontdata/sound/0650_Aspirin_sf2_file.js"></script>
+<script src="vendor/WebAudioFontPlayer.js"></script>
+<script src="vendor/0650_Aspirin_sf2_file.js"></script>
 <script type="module" src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {

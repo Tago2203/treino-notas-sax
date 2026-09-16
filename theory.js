@@ -50,3 +50,6 @@ export const DURATION_OPTIONS = [
 
 export const OCTAVE_OPTIONS = [3, 4, 5, 6];
 
+export const SPEED_OPTIONS = [20, 50, 100, 130, 170];
+export const SPACING_OPTIONS = [0.5, 0.8, 1, 1.3];
+

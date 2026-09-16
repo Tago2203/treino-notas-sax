@@ -1,4 +1,4 @@
-const CACHE_NAME = 'treino-notas-sax-v2';
+const CACHE_NAME = 'treino-notas-sax-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -11,6 +11,8 @@ const ASSETS = [
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './vendor/WebAudioFontPlayer.js',
+  './vendor/0650_Aspirin_sf2_file.js',
 ];
 
 self.addEventListener('install', (event) => {
@@ -29,13 +31,14 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-first pros arquivos do próprio site: sempre busca a versão mais
-// nova quando há internet, e só usa o cache como reserva pra funcionar
+// Network-first pros arquivos do próprio site (incluindo o player de áudio,
+// que agora é servido localmente em vez de um CDN): sempre busca a versão
+// mais nova quando há internet, e só usa o cache como reserva pra funcionar
 // offline. Assim uma atualização aparece na hora, sem precisar trocar o
 // nome do cache a cada deploy.
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) return; // não mexe nos CDNs externos (WebAudioFont)
+  if (url.origin !== self.location.origin) return;
 
   event.respondWith(
     fetch(event.request)

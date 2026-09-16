@@ -7,17 +7,29 @@ import {
   NOTE_COLORS,
   DURATION_OPTIONS,
   OCTAVE_OPTIONS,
+  SPEED_OPTIONS,
+  SPACING_OPTIONS,
 } from './theory.js';
-import { initAudio, playMidiNote, playErrorSound } from './audio-engine.js';
+import { initAudio, playMidiNote, playErrorSound, setMuted, isMuted } from './audio-engine.js';
 import { CANVAS_W, ZOOM, STAFF_START_X, render, layoutXPositions } from './staff-renderer.js';
 
 const STORAGE_PREFIX = 'treino-notas-sax:best:';
+const MUTE_STORAGE_KEY = 'treino-notas-sax:muted';
+
+// A velocidade sobe a cada acerto e volta pro valor base ao errar.
+const RAMP_STEP = 10;
+const RAMP_MAX = 260;
 
 const MODES = [
   { id: 'scroll', label: '🎬 Notas passando', description: 'As notas se movem pela pauta' },
+  { id: 'ramp', label: '📈 Crescente', description: 'Acerta pra acelerar; errar reinicia a velocidade' },
   { id: 'fixed5', label: '5️⃣ Sequência de 5', description: '5 notas fixas, responda em ordem' },
   { id: 'single', label: '🎯 Nota única', description: 'Uma nota por vez, sem pressa' },
 ];
+
+function formatSpacingLabel(v) {
+  return `${String(v).replace('.', ',')} s`;
+}
 
 const menuScreen = document.getElementById('screen-menu');
 const settingsScreen = document.getElementById('screen-settings');
@@ -27,9 +39,9 @@ const settingsBackBtn = document.getElementById('settings-back-btn');
 const settingsLevelNameEl = document.getElementById('settings-level-name');
 const modeTogglesEl = document.getElementById('mode-toggles');
 const speedBlock = document.getElementById('speed-block');
-const speedSelect = document.getElementById('speed-select');
+const speedTogglesEl = document.getElementById('speed-toggles');
 const spacingBlock = document.getElementById('spacing-block');
-const spacingSelect = document.getElementById('spacing-select');
+const spacingTogglesEl = document.getElementById('spacing-toggles');
 const noteTogglesEl = document.getElementById('note-toggles');
 const octaveTogglesEl = document.getElementById('octave-toggles');
 const durationTogglesEl = document.getElementById('duration-toggles');
@@ -40,9 +52,45 @@ const backBtn = document.getElementById('back-btn');
 const scoreEl = document.getElementById('score');
 const streakEl = document.getElementById('streak');
 const levelNameEl = document.getElementById('level-name');
+const rampSpeedStatEl = document.getElementById('ramp-speed-stat');
+const rampSpeedEl = document.getElementById('ramp-speed');
+const muteBtn = document.getElementById('mute-btn');
+const gameControlsEl = document.getElementById('game-controls');
+const gameSpeedSelect = document.getElementById('game-speed-select');
+const gameSpacingSelect = document.getElementById('game-spacing-select');
 const optionsEl = document.getElementById('options');
 const canvas = document.getElementById('staff');
 const ctx = canvas.getContext('2d');
+
+gameSpeedSelect.innerHTML = SPEED_OPTIONS.map((v) => `<option value="${v}">${v} px/s</option>`).join('');
+gameSpacingSelect.innerHTML = SPACING_OPTIONS.map((v) => `<option value="${v}">${formatSpacingLabel(v)}</option>`).join('');
+
+function applyMuteUI(muted) {
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+  muteBtn.setAttribute('aria-label', muted ? 'Ativar som' : 'Mutar som');
+}
+
+setMuted(localStorage.getItem(MUTE_STORAGE_KEY) === '1');
+applyMuteUI(isMuted());
+
+muteBtn.addEventListener('click', () => {
+  const next = !isMuted();
+  setMuted(next);
+  localStorage.setItem(MUTE_STORAGE_KEY, next ? '1' : '0');
+  applyMuteUI(next);
+});
+
+gameSpeedSelect.addEventListener('change', () => {
+  if (!state) return;
+  const v = Number(gameSpeedSelect.value);
+  state.settings.speed = v;
+  if (state.mode === 'ramp') state.rampSpeed = v;
+});
+
+gameSpacingSelect.addEventListener('change', () => {
+  if (!state) return;
+  state.settings.spawnInterval = Number(gameSpacingSelect.value);
+});
 
 // Dimensiona o canvas com a resolução física real da tela (considerando a
 // densidade de pixels do aparelho) multiplicada pelo zoom desejado, pra
@@ -100,9 +148,28 @@ function buildMenu() {
 // --- Tela de configurações ---
 
 function updateModeDependentVisibility() {
-  const isScroll = draftMode === 'scroll';
-  speedBlock.hidden = !isScroll;
-  spacingBlock.hidden = !isScroll;
+  const showSpeedSpacing = draftMode === 'scroll' || draftMode === 'ramp';
+  speedBlock.hidden = !showSpeedSpacing;
+  spacingBlock.hidden = !showSpeedSpacing;
+}
+
+// Grupo de "chips" de seleção única (visual igual às caixinhas de Oitavas,
+// mas com comportamento de rádio: só uma opção fica marcada por vez).
+function buildSingleSelectChips(container, items, currentValue, onSelect) {
+  container.innerHTML = '';
+  for (const item of items) {
+    const active = item.value === currentValue;
+    const label = document.createElement('label');
+    label.className = 'chip selectable' + (active ? ' selected' : '');
+    if (item.title) label.title = item.title;
+    label.innerHTML = `<input type="radio" name="${container.id}" value="${item.value}" ${active ? 'checked' : ''} style="display:none" />${item.label}`;
+    label.querySelector('input').addEventListener('change', () => {
+      container.querySelectorAll('.chip').forEach((c) => c.classList.remove('selected'));
+      label.classList.add('selected');
+      onSelect(item.value);
+    });
+    container.appendChild(label);
+  }
 }
 
 function openSettings(levelId) {
@@ -110,23 +177,30 @@ function openSettings(levelId) {
   draftMode = draftLevel.mode;
   settingsLevelNameEl.textContent = draftLevel.label;
 
-  modeTogglesEl.innerHTML = '';
-  for (const m of MODES) {
-    const label = document.createElement('label');
-    label.className = 'chip selectable' + (m.id === draftMode ? ' selected' : '');
-    label.title = m.description;
-    label.innerHTML = `<input type="radio" name="mode" value="${m.id}" ${m.id === draftMode ? 'checked' : ''} style="display:none" />${m.label}`;
-    label.querySelector('input').addEventListener('change', () => {
-      draftMode = m.id;
-      modeTogglesEl.querySelectorAll('.chip').forEach((c) => c.classList.remove('selected'));
-      label.classList.add('selected');
+  buildSingleSelectChips(
+    modeTogglesEl,
+    MODES.map((m) => ({ value: m.id, label: m.label, title: m.description })),
+    draftMode,
+    (value) => {
+      draftMode = value;
       updateModeDependentVisibility();
-    });
-    modeTogglesEl.appendChild(label);
-  }
+    }
+  );
 
-  speedSelect.value = String(draftLevel.speed);
-  spacingSelect.value = String(draftLevel.spawnInterval);
+  buildSingleSelectChips(
+    speedTogglesEl,
+    SPEED_OPTIONS.map((v) => ({ value: String(v), label: `${v} px/s` })),
+    String(draftLevel.speed),
+    () => {}
+  );
+
+  buildSingleSelectChips(
+    spacingTogglesEl,
+    SPACING_OPTIONS.map((v) => ({ value: String(v), label: formatSpacingLabel(v) })),
+    String(draftLevel.spawnInterval),
+    () => {}
+  );
+
   updateModeDependentVisibility();
 
   noteTogglesEl.innerHTML = '';
@@ -176,10 +250,12 @@ function readSettings() {
   const letters = [...noteTogglesEl.querySelectorAll('input:checked')].map((i) => i.value);
   const octaves = [...octaveTogglesEl.querySelectorAll('input:checked')].map((i) => Number(i.value));
   const durations = [...durationTogglesEl.querySelectorAll('input:checked')].map((i) => i.value);
+  const speedInput = speedTogglesEl.querySelector('input:checked');
+  const spacingInput = spacingTogglesEl.querySelector('input:checked');
   return {
     mode: draftMode,
-    speed: Number(speedSelect.value),
-    spawnInterval: Number(spacingSelect.value),
+    speed: Number(speedInput.value),
+    spawnInterval: Number(spacingInput.value),
     letters,
     octaves,
     durations,
@@ -265,7 +341,7 @@ function refreshTargetAndOptions() {
     buildOptions(target);
     state.lastTargetId = target.id;
   }
-  render(ctx, state.notes, state.mode === 'scroll');
+  render(ctx, state.notes, state.mode === 'scroll' || state.mode === 'ramp');
 }
 
 function scheduleTimeout(fn, delay) {
@@ -293,6 +369,7 @@ function missNote(note) {
   const midi = noteToMidi(note.letter, note.octave, note.accidental);
   playMidiNote(midi);
   state.streak = 0;
+  if (state.mode === 'ramp') state.rampSpeed = state.settings.speed;
   disableOptions();
   updateHud();
 }
@@ -307,14 +384,16 @@ function tick(now) {
     state.lastSpawn = 0;
   }
 
+  const speed = state.mode === 'ramp' ? state.rampSpeed : state.settings.speed;
   for (const note of state.notes) {
-    note.x -= state.settings.speed * dt;
+    note.x -= speed * dt;
     if (note.judged === null && note.x <= STAFF_START_X + 20) {
       missNote(note);
     }
   }
 
   state.notes = state.notes.filter((n) => n.x > STAFF_START_X - 60);
+  if (state.mode === 'ramp') rampSpeedEl.textContent = String(Math.round(state.rampSpeed));
   refreshTargetAndOptions();
 
   rafId = requestAnimationFrame(tick);
@@ -349,13 +428,15 @@ function answer(note, correct) {
   if (correct) {
     state.streak += 1;
     state.score += Math.round(10 * (1 + state.streak * 0.1));
+    if (state.mode === 'ramp') state.rampSpeed = Math.min(state.rampSpeed + RAMP_STEP, RAMP_MAX);
   } else {
     state.streak = 0;
+    if (state.mode === 'ramp') state.rampSpeed = state.settings.speed;
   }
   disableOptions();
   updateHud();
 
-  if (state.mode === 'scroll') return; // o loop de animação cuida do resto
+  if (state.mode === 'scroll' || state.mode === 'ramp') return; // o loop de animação cuida do resto
 
   render(ctx, state.notes, false);
   if (state.mode === 'single') {
@@ -387,6 +468,7 @@ function startGame(level, settings) {
     notes: [],
     score: 0,
     streak: 0,
+    rampSpeed: settings.speed,
     nextId: 0,
     lastSpawn: settings.spawnInterval,
     lastFrame: performance.now(),
@@ -398,7 +480,16 @@ function startGame(level, settings) {
   optionsEl.innerHTML = '';
   showScreen('game');
 
-  if (state.mode === 'scroll') {
+  const showLiveControls = state.mode === 'scroll' || state.mode === 'ramp';
+  gameControlsEl.hidden = !showLiveControls;
+  rampSpeedStatEl.hidden = state.mode !== 'ramp';
+  if (showLiveControls) {
+    gameSpeedSelect.value = String(settings.speed);
+    gameSpacingSelect.value = String(settings.spawnInterval);
+  }
+  if (state.mode === 'ramp') rampSpeedEl.textContent = String(Math.round(state.rampSpeed));
+
+  if (showLiveControls) {
     rafId = requestAnimationFrame(tick);
   } else if (state.mode === 'fixed5') {
     spawnFixed5Batch();

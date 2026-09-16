@@ -5,6 +5,15 @@ const PRESET_VAR = '_tone_0650_Aspirin_sf2_file';
 
 let audioContext = null;
 let player = null;
+let muted = false;
+
+export function setMuted(value) {
+  muted = value;
+}
+
+export function isMuted() {
+  return muted;
+}
 
 function ensureContext() {
   if (!audioContext) {
@@ -29,6 +38,7 @@ export function isAudioReady() {
 }
 
 export function playMidiNote(midiNumber, duration = 1.3) {
+  if (muted) return;
   ensureContext();
   const preset = window[PRESET_VAR];
   if (!preset || !player) return;
@@ -37,6 +47,7 @@ export function playMidiNote(midiNumber, duration = 1.3) {
 
 // Bipe curto de erro (dois tons descendentes), sem depender do WebAudioFont.
 export function playErrorSound() {
+  if (muted) return;
   ensureContext();
   const t0 = audioContext.currentTime;
   const gain = audioContext.createGain();
